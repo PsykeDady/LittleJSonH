@@ -1,0 +1,25 @@
+{
+  "name": "littlejsonh",
+  "version": "1.0.0",
+  "description": "parsing cron string and elaborate next Times",
+  "main": "LittleJSonH.js",
+  "type": "module",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PsykeDady/LittleJSonH.git"
+  },
+  "keywords": [
+    "cron;",
+    "expression;",
+    "time"
+  ],
+  "author": "PsykeDady",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/PsykeDady/LittleJSonH/issues"
+  },
+  "homepage": "https://github.com/PsykeDady/LittleJSonH#readme"
+}
