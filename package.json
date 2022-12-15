@@ -1,6 +1,6 @@
 {
   "name": "littlejsonh",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "parsing cron string and elaborate next Times",
   "main": "LittleJSonH.js",
   "type": "module",

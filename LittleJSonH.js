@@ -10,6 +10,7 @@ const cronExprOrdinal = {
 const ERR_TEXT_WRONG_CRON = "ERROR= can't parse this string"
 
 const CRON_EXPR_ORDER = ["minute", "hour", "day of month", "month", "day of week"]
+const CRON_EXPR_ORDER_PL = ["minutes", "hours", "days of month", "months", "days of week"]
 
 const WORDLIST_MONTH = "\0\0\0JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC"; // \0\0\0 is added to match range 1-12
 const WORDLIST_DAY_OF_WEEK = "SUNMONTUEWEDTHUFRISAT";
@@ -84,7 +85,7 @@ class LittleJSonH {
 				default:
 					break;
 			}
-			let hword=this._analyze(splitCron[i], output, CRON_EXPR_ORDER[i])
+			let hword=this._analyze(splitCron[i], output, i)
 			this.human=(this.human=="")?hword: this.human+", "+hword;
 			this.currentTime=new Date();
 		}
@@ -215,9 +216,9 @@ class LittleJSonH {
 		* 
 		* @param {String} cron 
 		* @param {number[]} output 
-		* @param {string} what 
+		* @param {number} iwhat 
 		*/
-	_analyze(cron, output, what) {
+	_analyze(cron, output, iwhat) {
 		let step = 1;
 		let start = -1;
 		let end = output.length - 1;
@@ -227,27 +228,22 @@ class LittleJSonH {
 		let isRange = false
 		let globStar = false
 
-		let wordlist =
-			(what === CRON_EXPR_ORDER[cronExprOrdinal.MONTH]) ?
-				WORDLIST_MONTH
-				: (what === CRON_EXPR_ORDER[cronExprOrdinal.DAY_OF_WEEK]) ?
-					WORDLIST_DAY_OF_WEEK
-					: "";
+		let wordlist = iwhat==cronExprOrdinal.DAY_OF_WEEK? WORDLIST_DAY_OF_WEEK : iwhat == cronExprOrdinal.MONTH ? WORDLIST_MONTH : "";
 
 		let wordb = ""
 		let sb = "";
 
 		/*
-			* forme dei valori
-			* 
-			* x-y : range
-			* x : numero singolo 
-			* * : tutti i valori
-			* 
-			* Ogni valore può avere indicato uno step ( con /<numero> ) 
-			* 
-			* Alcuni valori possono essere alfanumerici (vedi wordlist) 
-			*/
+		 * forme dei valori
+		 * 
+		 * x-y : range
+		 * x : numero singolo 
+		 * * : tutti i valori
+		 * 
+		 * Ogni valore può avere indicato uno step ( con /<numero> ) 
+		 * 
+		 * Alcuni valori possono essere alfanumerici (vedi wordlist) 
+		 */
 		for (let i = 0; i<cron.length; i++) {
 			let c = cron.charAt(i); 
 			if (/[A-Za-z]/.test(c)) {
@@ -276,7 +272,7 @@ class LittleJSonH {
 					throw ERR_TEXT_WRONG_CRON;
 				tmp = start = 0;
 				end = output.length - 1;
-				if (what === CRON_EXPR_ORDER[cronExprOrdinal.MONTH] || what === CRON_EXPR_ORDER[cronExprOrdinal.DAY_OF_WEEK]) {
+				if(cronExprOrdinal.MONTH === iwhat || iwhat=== cronExprOrdinal.DAY_OF_WEEK) {
 					tmp++;
 					start++;
 					end++;
@@ -310,18 +306,20 @@ class LittleJSonH {
 				}
 				if (isRange && end<start) throw ERR_TEXT_WRONG_CRON;
 				
+				let what = step>1 ? CRON_EXPR_ORDER_PL[iwhat] : CRON_EXPR_ORDER[iwhat];
+
 				// create human
 				if(!globStar && !isRange && !isStep) sb+="at "+what+" "+start;
-				else if(!globStar && !isRange) sb+="every "+what+" from "+start+" ";
-				else if(!globStar) sb+="every "+what+" on ranges from "+start+" ";
-				else if (globStar) sb+="every "+what+" ";
+				else {
+					if(step>1) sb+="every "+step+" "+what;
+					else sb+="every "+what;
+					if(!globStar) sb+=" from "+start+" ";
+				}
 				
 				if(isRange) sb+="to "+end+" ";
 				
-				if(isStep && step>1) sb+="with "+step+" steps at a time";
-
 				// apply
-				if(what === CRON_EXPR_ORDER[cronExprOrdinal.MONTH] || what=== CRON_EXPR_ORDER[cronExprOrdinal.DAY_OF_WEEK]) {
+				if(cronExprOrdinal.MONTH === iwhat || iwhat=== cronExprOrdinal.DAY_OF_WEEK) {
 					start--;
 					end--;
 				}

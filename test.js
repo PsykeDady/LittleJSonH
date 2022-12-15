@@ -57,6 +57,13 @@ console.log(l.currentTime)
 l.nextT()
 console.log(l.currentTime)
 
+test="* * 1/14 * *"
+l= new LittleJSonH(test);
+console.log(test+" : "+l.human)
+console.log(l.currentTime)
+l.nextT()
+console.log(l.currentTime)
+
 
 
 console.log("_______________")
